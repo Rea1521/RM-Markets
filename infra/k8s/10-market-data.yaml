@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: market-data, namespace: rm-markets, labels: { app: market-data } }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: market-data } }
+  template:
+    metadata: { labels: { app: market-data } }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/YOUR_GITHUB_USER/rm-markets-api:latest
+          ports: [{ containerPort: 8000 }]
+          envFrom: [{ configMapRef: { name: rm-config } }, { secretRef: { name: rm-secrets } }]
+          env:
+            - { name: SERVICE_MODE, value: "market" }
+            - { name: RUN_MARKET_FEED, value: "true" }
+            - { name: PORT, value: "8000" }
+          readinessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 5, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 20, periodSeconds: 20 }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 768Mi }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: market-data, namespace: rm-markets }
+spec:
+  selector: { app: market-data }
+  ports: [{ port: 8000, targetPort: 8000 }]

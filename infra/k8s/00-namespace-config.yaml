@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Namespace
+metadata: { name: rm-markets }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: rm-config, namespace: rm-markets }
+data:
+  APP_ENV: production
+  CORS_ORIGINS: "https://rm-markets.example.com"
+  MARKET_PROVIDER_MODE: live
+  REDIS_URL: redis://redis:6379/0
+---
+# Create real values with:  kubectl -n rm-markets create secret generic rm-secrets --from-literal=JWT_SECRET=... --from-literal=DATABASE_URL=...
+apiVersion: v1
+kind: Secret
+metadata: { name: rm-secrets, namespace: rm-markets }
+type: Opaque
+stringData:
+  JWT_SECRET: "replace-me"
+  DATABASE_URL: "postgresql://rm:rm@postgres:5432/rmmarkets"
+  FINNHUB_API_KEY: ""
+  POLYGON_API_KEY: ""
+  ALPHA_VANTAGE_API_KEY: ""

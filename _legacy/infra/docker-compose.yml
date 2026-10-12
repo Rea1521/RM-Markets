@@ -1,0 +1,80 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: rmmarkets
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+
+  auth-service:
+    build:
+      context: ../backend-java/auth-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rmmarkets
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      APP_JWTSECRET: secret-dev-key-please-change
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+
+  market-service:
+    build:
+      context: ../backend-java/market-service
+    depends_on:
+      - auth-service
+    ports:
+      - "8082:8082"
+
+  trading-service:
+    build:
+      context: ../backend-java/trading-service
+    depends_on:
+      - auth-service
+      - market-service
+    ports:
+      - "8083:8083"
+
+  analytics-service:
+    build:
+      context: ../backend-java/analytics-service
+    depends_on:
+      - auth-service
+      - market-service
+      - trading-service
+    ports:
+      - "8084:8084"
+
+  news-service:
+    build:
+      context: ../backend-java/news-service
+    depends_on:
+      - auth-service
+      - market-service
+    ports:
+      - "8085:8085"
+
+  python-ml-service:
+    build:
+      context: ../backend-python/ml-service
+    ports:
+      - "8090:8090"
+    depends_on:
+      - market-service
+      - analytics-service
+
+volumes:
+  postgres_data:

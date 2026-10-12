@@ -1,0 +1,32 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.db
+*.db-*
+
+# node / builds
+node_modules/
+dist/
+*.tsbuildinfo
+.expo/
+mobile/android/
+mobile/ios/
+
+# legacy build output
+_legacy/**/build/
+_legacy/**/target/
+_legacy/**/.dart_tool/
+_legacy/**/__pycache__/
+_legacy/**/.flutter-plugins-dependencies
+_legacy/*.zip
+
+.DS_Store
+Thumbs.db

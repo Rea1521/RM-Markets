@@ -1,0 +1,17 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+gunicorn==23.0.0
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+pydantic==2.10.3
+email-validator==2.2.0
+pyjwt==2.10.1
+bcrypt==4.2.1
+redis==5.2.1
+httpx==0.28.1
+numpy==2.2.0
+strawberry-graphql==0.254.0
+graphql-core==3.2.5
+python-multipart==0.0.19
+websockets==14.1
+feedparser==6.0.11

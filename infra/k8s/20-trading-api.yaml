@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: trading-api, namespace: rm-markets, labels: { app: trading-api } }
+spec:
+  replicas: 3
+  selector: { matchLabels: { app: trading-api } }
+  template:
+    metadata: { labels: { app: trading-api } }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/YOUR_GITHUB_USER/rm-markets-api:latest
+          ports: [{ containerPort: 8000 }]
+          envFrom: [{ configMapRef: { name: rm-config } }, { secretRef: { name: rm-secrets } }]
+          env:
+            - { name: SERVICE_MODE, value: "trading" }
+            - { name: RUN_MARKET_FEED, value: "false" }
+            - { name: PORT, value: "8000" }
+          readinessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 5, periodSeconds: 10 }
+          livenessProbe: { httpGet: { path: /health, port: 8000 }, initialDelaySeconds: 20, periodSeconds: 20 }
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 768Mi }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: trading-api, namespace: rm-markets }
+spec:
+  selector: { app: trading-api }
+  ports: [{ port: 8000, targetPort: 8000 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: trading-api, namespace: rm-markets }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: trading-api }
+  minReplicas: 3
+  maxReplicas: 12
+  metrics: [{ type: Resource, resource: { name: cpu, target: { type: Utilization, averageUtilization: 65 } } }]
