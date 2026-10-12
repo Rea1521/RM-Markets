@@ -65,12 +65,15 @@ jobs:
     permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v4
+      - name: Lowercase image owner (GHCR requires lowercase names)
+        run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
       - uses: docker/build-push-action@v6
-        with: { context: backend, push: true, tags: "ghcr.io/${{ github.repository_owner }}/rm-markets-api:latest,ghcr.io/${{ github.repository_owner }}/rm-markets-api:${{ github.sha }}" }
+        with: { context: backend, push: true, tags: "ghcr.io/${{ env.OWNER }}/rm-markets-api:latest,ghcr.io/${{ env.OWNER }}/rm-markets-api:${{ github.sha }}" }
       - uses: docker/build-push-action@v6
-        with: { context: web, push: true, tags: "ghcr.io/${{ github.repository_owner }}/rm-markets-web:latest,ghcr.io/${{ github.repository_owner }}/rm-markets-web:${{ github.sha }}" }
+        with: { context: web, push: true, tags: "ghcr.io/${{ env.OWNER }}/rm-markets-web:latest,ghcr.io/${{ env.OWNER }}/rm-markets-web:${{ github.sha }}" }
 
   deploy-railway:
     needs: [backend, web, mobile]

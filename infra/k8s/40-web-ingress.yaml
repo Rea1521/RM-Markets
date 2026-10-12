@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/YOUR_GITHUB_USER/rm-markets-web:latest
+          image: ghcr.io/rea1521/rm-markets-web:latest
           ports: [{ containerPort: 4173 }]
           readinessProbe: { httpGet: { path: /, port: 4173 } }
 ---
